@@ -330,6 +330,7 @@ tls-version-min 1.2" > /etc/openvpn/server.conf
 	echo "keepalive 10 120
 persist-key
 persist-tun
+mlock
 crl-verify crl.pem" >> /etc/openvpn/server.conf
 	# Enable net.ipv4.ip_forward for the system
 	if [[ "$OS" = 'debian' ]]; then
@@ -421,6 +422,7 @@ persist-tun
 remote-cert-tls server
 cipher AES-256-CBC
 auth SHA512
+mlock
 tls-version-min 1.2" > /etc/openvpn/client-common.txt
 	if [[ "$VARIANT" = '1' ]]; then
 		# If the user selected the fast, less hardened version
