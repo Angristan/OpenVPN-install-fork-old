@@ -9,19 +9,19 @@
 
 
 if [[ "$EUID" -ne 0 ]]; then
-	echo "Sorry, you need to run this as root"
+	echo "Désolé, mais il faut que vous soyez en administrateur (root)"
 	exit 1
 fi
 
 
 if [[ ! -e /dev/net/tun ]]; then
-	echo "TUN is not available"
+	echo "TUN n'est pas disponible"
 	exit 2
 fi
 
 
 if grep -qs "CentOS release 5" "/etc/redhat-release"; then
-	echo "CentOS 5 is too old and not supported"
+	echo "CentOS version 5 est trop vieille pour être supportée"
 	exit 3
 fi
 
@@ -31,7 +31,7 @@ if [[ -e /etc/debian_version ]]; then
 	VERSION_ID=$(cat /etc/*-release | grep "VERSION_ID")
 	RCLOCAL='/etc/rc.local'
 	if [[ "$VERSION_ID" != 'VERSION_ID="7"' ]] && [[ "$VERSION_ID" != 'VERSION_ID="8"' ]] && [[ "$VERSION_ID" != 'VERSION_ID="12.04"' ]] && [[ "$VERSION_ID" != 'VERSION_ID="14.04"' ]] && [[ "$VERSION_ID" != 'VERSION_ID="15.10"' ]]; then
-		echo "Your version of Debian/Ubuntu is not supported. Please look at the documentation."
+		echo "Votre version Debian / Debian like n'est pas supportée. Merci de bien lire la documentation."
 		exit 4
 	fi
 elif [[ -e /etc/centos-release || -e /etc/redhat-release ]]; then
@@ -74,24 +74,24 @@ if [[ -e /etc/openvpn/server.conf ]]; then
 	clear
 		echo "Looks like OpenVPN is already installed"
 		echo ""
-		echo "What do you want to do?"
-		echo "   1) Add a cert for a new user"
-		echo "   2) Revoke existing user cert"
-		echo "   3) Remove OpenVPN"
-		echo "   4) Exit"
-		read -p "Select an option [1-4]: " option
+		echo "Que voulez-vous faire ?"
+		echo "   1) Ajouter un utilisateur"
+		echo "   2) Supprimer un utilisateur"
+		echo "   3) Supprimer OpenVPN (ce serveur VPN)"
+		echo "   4) Quitter"
+		read -p "Choissiez une option [1-4]: " option
 		case $option in
-			1) 
+			1)
 			echo ""
-			echo "Tell me a name for the client cert"
-			echo "Please, use one word only, no special characters"
-			read -p "Client name: " -e -i client CLIENT
+			echo "Donnez le nom de votre utilisateur"
+			echo "Juste en un mot, et pas de caracère spéciaux"
+			read -p "Nom de l'utilisateur: " -e -i client CLIENT
 			cd /etc/openvpn/easy-rsa/
 			./easyrsa build-client-full $CLIENT nopass
 			# Generates the custom client.ovpn
 			newclient "$CLIENT"
 			echo ""
-			echo "Client $CLIENT added, certs available at ~/$CLIENT.ovpn"
+			echo "L'utilisateur $CLIENT a été ajouté, sa configuration est disponible à ~/$CLIENT.ovpn"
 			exit
 			;;
 			2)
@@ -100,16 +100,16 @@ if [[ -e /etc/openvpn/server.conf ]]; then
 			NUMBEROFCLIENTS=$(tail -n +2 /etc/openvpn/easy-rsa/pki/index.txt | grep -c "^V")
 			if [[ "$NUMBEROFCLIENTS" = '0' ]]; then
 				echo ""
-				echo "You have no existing clients!"
+				echo "Vous n'avez créé aucun utilisateur pour le moment !"
 				exit 5
 			fi
 			echo ""
-			echo "Select the existing client certificate you want to revoke"
+			echo "Sélectionner l'utilisateur que vous voulez supprimer"
 			tail -n +2 /etc/openvpn/easy-rsa/pki/index.txt | grep "^V" | cut -d '=' -f 2 | nl -s ') '
 			if [[ "$NUMBEROFCLIENTS" = '1' ]]; then
-				read -p "Select one client [1]: " CLIENTNUMBER
+				read -p "Sélectionner un nombre [1]: " CLIENTNUMBER
 			else
-				read -p "Select one client [1-$NUMBEROFCLIENTS]: " CLIENTNUMBER
+				read -p "Sélectioner un nombre [1-$NUMBEROFCLIENTS]: " CLIENTNUMBER
 			fi
 			CLIENT=$(tail -n +2 /etc/openvpn/easy-rsa/pki/index.txt | grep "^V" | cut -d '=' -f 2 | sed -n "$CLIENTNUMBER"p)
 			cd /etc/openvpn/easy-rsa/
@@ -121,12 +121,12 @@ if [[ -e /etc/openvpn/server.conf ]]; then
 			rm -rf /etc/openvpn/crl.pem
 			cp /etc/openvpn/easy-rsa/pki/crl.pem /etc/openvpn/crl.pem
 			echo ""
-			echo "Certificate for client $CLIENT revoked"
+			echo "La configuration de $CLIENT a été supprimée"
 			exit
 			;;
-			3) 
+			3)
 			echo ""
-			read -p "Do you really want to remove OpenVPN? [y/n]: " -e -i n REMOVE
+			read -p "Voulez-vous vraiment supprimer OpenVPN ? [y/n]: " -e -i n REMOVE
 			if [[ "$REMOVE" = 'y' ]]; then
 				PORT=$(grep '^port ' /etc/openvpn/server.conf | cut -d " " -f 2)
 				if pgrep firewalld; then
@@ -157,7 +157,7 @@ if [[ -e /etc/openvpn/server.conf ]]; then
 				rm -rf /etc/openvpn
 				rm -rf /usr/share/doc/openvpn*
 				echo ""
-				echo "OpenVPN removed!"
+				echo "OpenVPN supprimé !"
 			else
 				echo ""
 				echo "Removal aborted!"
@@ -169,35 +169,29 @@ if [[ -e /etc/openvpn/server.conf ]]; then
 	done
 else
 	clear
-	echo 'Welcome to this quick OpenVPN "road warrior" installer'
+	echo "Bienvenue dans cet installateur d'un serveur VPN !"
 	echo ""
-	# OpenVPN setup and first user creation
-	echo "I need to ask you a few questions before starting the setup"
-	echo "You can leave the default options and just press enter if you are ok with them"
-	echo ""
-	echo "First, choose which variant of the script you want to use."
-	echo '"Fast" is secure, but "slow" is the best encryption you can get, at the cost of speed (not that slow though)'
+	echo "Premièrement, choisissez entre rapidité ou pleine sécurité."
+	echo '"Fast" est sécurisé, but "Slow" est la meilleure protection que vous pouvez avoir'
 	echo "   1) Fast (2048 bits RSA and DH, 128 bits AES)"
 	echo "   2) Slow (4096 bits RSA and DH, 256 bits AES)"
 	while [[ $VARIANT !=  "1" && $VARIANT != "2" ]]; do
 		read -p "Variant [1-2]: " -e -i 1 VARIANT
 	done
-	
+
 	echo ""
-	echo "I need to know the IPv4 address of the network interface you want OpenVPN listening to."
-	echo "If you server is running behind a NAT, (e.g. LowEndSpirit, Scaleway) leave the IP adress as it is. (local/private IP"
-	echo "Otherwise, it sould be your public IPv4 address."
-	read -p "IP address: " -e -i $IP IP
+	echo "Pour installer le serveur VPN il vous faut renseigner plusieurs champs"
+	read -p "Entez votre adresse IP : " -e -i $IP IP
 	echo ""
-	echo "What port do you want for OpenVPN?"
-	read -p "Port: " -e -i 1194 PORT
+	echo "Quel port voulez-vous utiliser pour le serveur VPN ?"
+	read -p "Port : " -e -i 1194 PORT
 	echo ""
-	echo "What DNS do you want to use with the VPN?"
-	echo "   1) Current system resolvers"
-	echo "   2) FDN (recommended)"
+	echo "Quel serveur DNS voulez-vous utiliser ?"
+	echo "   1) Utiliser la configuration actuelle du serveur"
+	echo "   2) FDN (recommandé)"
 	echo "   3) OpenNIC (nearest servers)"
 	echo "   4) OpenDNS"
-	echo "   5) Google"
+	echo "   5) Google DNS"
 	read -p "DNS [1-6]: " -e -i 2 DNS
 	echo ""
 	echo "Finally, tell me your name for the client cert"
@@ -241,7 +235,7 @@ else
 		yum install epel-release -y
 		yum install openvpn iptables openssl wget ca-certificates curl -y
 	fi
-	
+
 	# An old version of easy-rsa was available by default in some openvpn packages
 	if [[ -d /etc/openvpn/easy-rsa/ ]]; then
 		rm -rf /etc/openvpn/easy-rsa/
@@ -300,7 +294,7 @@ tls-version-min 1.2" > /etc/openvpn/server.conf
 	echo 'push "redirect-gateway def1 bypass-dhcp"' >> /etc/openvpn/server.conf
 	# DNS
 	case $DNS in
-		1) 
+		1)
 		# Obtain the resolvers from resolv.conf and use them for OpenVPN
 		grep -v '#' /etc/resolv.conf | grep 'nameserver' | grep -E -o '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | while read line; do
 			echo "push \"dhcp-option DNS $line\"" >> /etc/openvpn/server.conf
@@ -318,11 +312,11 @@ tls-version-min 1.2" > /etc/openvpn/server.conf
 		echo "push "dhcp-option DNS $ns1"" >> /etc/openvpn/server.conf
 		echo "push "dhcp-option DNS $ns2"" >> /etc/openvpn/server.conf
 		;;
-		4) #OpenDNS 
+		4) #OpenDNS
 		echo 'push "dhcp-option DNS 208.67.222.222"' >> /etc/openvpn/server.conf
 		echo 'push "dhcp-option DNS 208.67.220.220"' >> /etc/openvpn/server.conf
 		;;
-		5) #Google 
+		5) #OwnDNS
 		echo 'push "dhcp-option DNS 8.8.8.8"' >> /etc/openvpn/server.conf
 		echo 'push "dhcp-option DNS 8.8.4.4"' >> /etc/openvpn/server.conf
 		;;
@@ -433,8 +427,8 @@ tls-version-min 1.2" > /etc/openvpn/client-common.txt
 	# Generates the custom client.ovpn
 	newclient "$CLIENT"
 	echo ""
-	echo "Finished!"
+	echo "Terminé !"
 	echo ""
-	echo "Your client config is available at ~/$CLIENT.ovpn"
-	echo "If you want to add more clients, you simply need to run this script another time!"
+	echo "La configuration de votre client est disponible à ~/$CLIENT.ovpn"
+	echo "Si vous souhaitez ajouter plus d'utilisateurs ou autres options, relancez le script."
 fi
