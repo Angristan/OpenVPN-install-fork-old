@@ -330,6 +330,7 @@ tls-version-min 1.2" > /etc/openvpn/server.conf
 	echo "keepalive 10 120
 persist-key
 persist-tun
+mlock
 crl-verify crl.pem" >> /etc/openvpn/server.conf
 	# Enable net.ipv4.ip_forward for the system
 	if [[ "$OS" = 'debian' ]]; then
@@ -421,14 +422,15 @@ persist-tun
 remote-cert-tls server
 cipher AES-256-CBC
 auth SHA512
+mlock
 tls-version-min 1.2" > /etc/openvpn/client-common.txt
 	if [[ "$VARIANT" = '1' ]]; then
 		# If the user selected the fast, less hardened version
 		# Or if the user selected a non-existant variant, we fallback to fast
-		echo "tls-cipher TLS-DHE-RSA-WITH-AES-128-GCM-SHA256" >> /etc/openvpn/client-common.txt
+		echo "tls-cipher TLS-DHE-RSA-WITH-AES-128-GCM-SHA256:TLS-DHE-RSA-WITH-AES-128-CBC-SHA256" >> /etc/openvpn/client-common.txt
 	elif [[ "$VARIANT" = '2' ]]; then
 		# If the user selected the relatively slow, ultra hardened version
-		echo "tls-cipher TLS-DHE-RSA-WITH-AES-256-GCM-SHA384" >> /etc/openvpn/client-common.txt
+		echo "tls-cipher TLS-DHE-RSA-WITH-AES-256-GCM-SHA384:TLS-DHE-RSA-WITH-AES-256-CBC-SHA256" >> /etc/openvpn/client-common.txt
 	fi
 	# Generates the custom client.ovpn
 	newclient "$CLIENT"
