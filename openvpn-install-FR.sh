@@ -40,7 +40,7 @@ elif [[ -e /etc/centos-release || -e /etc/redhat-release ]]; then
 	# Needed for CentOS 7
 	chmod +x /etc/rc.d/rc.local
 else
-	echo "Looks like you aren't running this installer on a Debian, Ubuntu or CentOS system"
+	echo "Vous n'exécutez pas ce script sous une Debian, Ubuntu ou CentOS."
 	exit 4
 fi
 
@@ -160,7 +160,7 @@ if [[ -e /etc/openvpn/server.conf ]]; then
 				echo "OpenVPN supprimé !"
 			else
 				echo ""
-				echo "Removal aborted!"
+				echo "Suppression annulée !"
 			fi
 			exit
 			;;
@@ -194,12 +194,12 @@ else
 	echo "   5) Google DNS"
 	read -p "DNS [1-6]: " -e -i 2 DNS
 	echo ""
-	echo "Finally, tell me your name for the client cert"
-	echo "Please, use one word only, no special characters"
+	echo "Finalement, donnez-moi le nom du certificat client"
+	echo "S'il vous plaît, pas de caractères spéciaux."
 	read -p "Client name: " -e -i client CLIENT
 	echo ""
-	echo "Okay, that was all I needed. We are ready to setup your OpenVPN server now"
-	read -n1 -r -p "Press any key to continue..."
+	echo "Okay, c'était tout ce dont j'avais besoin. Nous sommes partis pour installer OpenVPN maintenant."
+	read -n1 -r -p "Tapez n'importe quelle touche..."
 	if [[ "$OS" = 'debian' ]]; then
 		apt-get install ca-certificates -y
 		# We add the OpenVPN repo to get the latest version.
@@ -394,11 +394,11 @@ crl-verify crl.pem" >> /etc/openvpn/server.conf
 	EXTERNALIP=$(wget -qO- ipv4.icanhazip.com)
 	if [[ "$IP" != "$EXTERNALIP" ]]; then
 		echo ""
-		echo "Looks like your server is behind a NAT!"
+		echo "Vous êtes apparemment derrière du NAT !"
 		echo ""
-		echo "If your server is NATed (e.g. LowEndSpirit, Scaleway), I need to know the external IP"
-		echo "If that's not the case, just ignore this and leave the next field blank"
-		read -p "External IP: " -e USEREXTERNALIP
+		echo "Si le serveur est NATé (e.g. LowEndSpirit, Scaleway), J'ai besoin de l'adresse externe (publique) du serveur."
+		echo "Si ce n'est pas le cas, alors laissez le champ vide, ignorez cet avertissement."
+		read -p "IP externe (publique): " -e USEREXTERNALIP
 		if [[ "$USEREXTERNALIP" != "" ]]; then
 			IP=$USEREXTERNALIP
 		fi
