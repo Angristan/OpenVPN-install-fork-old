@@ -67,7 +67,7 @@ Each one has been test by myself.
 Run the script and follow the assistant:
 
 ```
-wget https://raw.githubusercontent.com/Angristan/OpenVPN-install/master/openvpn-install.sh
+wget --no-check-certificate https://raw.githubusercontent.com/Angristan/OpenVPN-install/master/openvpn-install.sh
 chmod +x openvpn-install.sh
 ./openvpn-install.sh
 ```
