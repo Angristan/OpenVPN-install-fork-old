@@ -257,7 +257,7 @@ else
 		fi
 		# The repo, is not available for Ubuntu 15.10 and 16.04, but it has OpenVPN > 2.3.3, so we do nothing.
 		# The we install OpnVPN
-		apt-get install openvpn iptables openssl wget ca-certificates curl -y
+		apt-get install openvpn iptables openssl wget ca-certificates curl ufw -y
 	else
 		# Else, the distro is CentOS
 		yum install epel-release -y
